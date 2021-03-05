@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
-#Import Library
+# Import Library
 import pygame
 from pygame.locals import *
 import random
 import copy
 
-#Load Images
+# Load Images
 icon = pygame.image.load('resources/icon.png')
 cBack = pygame.image.load('resources/cards/cardback.png')
 diamondA = pygame.image.load('resources/cards/ad.png')
@@ -62,40 +62,41 @@ clubK = pygame.image.load('resources/cards/kc.png')
 heartK = pygame.image.load('resources/cards/kh.png')
 spadeK = pygame.image.load('resources/cards/ks.png')
 
-#Set Icon
+# Set Icon
 pygame.display.set_icon(icon)
 
-#Global Constants
-black = (0,0,0)
-white = (255,255,255)
-gray = (192,192,192)
+# Global Constants
+black = (0, 0, 0)
+white = (255, 255, 255)
+gray = (192, 192, 192)
 
-cards = [ diamondA, clubA, heartA, spadeA, \
-          diamond2, club2, heart2, spade2, \
-          diamond3, club3, heart3, spade3, \
-          diamond4, club4, heart4, spade4, \
-          diamond5, club5, heart5, spade5, \
-          diamond6, club6, heart6, spade6, \
-          diamond7, club7, heart7, spade7, \
-          diamond8, club8, heart8, spade8, \
-          diamond9, club9, heart9, spade9, \
-          diamond10, club10, heart10, spade10, \
+cards = [diamondA, clubA, heartA, spadeA, \
+         diamond2, club2, heart2, spade2, \
+         diamond3, club3, heart3, spade3, \
+         diamond4, club4, heart4, spade4, \
+         diamond5, club5, heart5, spade5, \
+         diamond6, club6, heart6, spade6, \
+         diamond7, club7, heart7, spade7, \
+         diamond8, club8, heart8, spade8, \
+         diamond9, club9, heart9, spade9, \
+         diamond10, club10, heart10, spade10, \
+         diamondJ, clubJ, heartJ, spadeJ, \
+         diamondQ, clubQ, heartQ, spadeQ, \
+         diamondK, clubK, heartK, spadeK]
+cardA = [diamondA, clubA, heartA, spadeA]
+card2 = [diamond2, club2, heart2, spade2]
+card3 = [diamond3, club3, heart3, spade3]
+card4 = [diamond4, club4, heart4, spade4]
+card5 = [diamond5, club5, heart5, spade5]
+card6 = [diamond6, club6, heart6, spade6]
+card7 = [diamond7, club7, heart7, spade7]
+card8 = [diamond8, club8, heart8, spade8]
+card9 = [diamond9, club9, heart9, spade9]
+card10 = [diamond10, club10, heart10, spade10, \
           diamondJ, clubJ, heartJ, spadeJ, \
           diamondQ, clubQ, heartQ, spadeQ, \
-          diamondK, clubK, heartK, spadeK ]
-cardA = [ diamondA, clubA, heartA, spadeA ]
-card2 = [ diamond2, club2, heart2, spade2 ]
-card3 = [ diamond3, club3, heart3, spade3 ]
-card4 = [ diamond4, club4, heart4, spade4 ]
-card5 = [ diamond5, club5, heart5, spade5 ]
-card6 = [ diamond6, club6, heart6, spade6 ]
-card7 = [ diamond7, club7, heart7, spade7 ]
-card8 = [ diamond8, club8, heart8, spade8 ]
-card9 = [ diamond9, club9, heart9, spade9 ]
-card10 = [ diamond10, club10, heart10, spade10, \
-            diamondJ, clubJ, heartJ, spadeJ, \
-            diamondQ, clubQ, heartQ, spadeQ, \
-            diamondK, clubK, heartK, spadeK ]
+          diamondK, clubK, heartK, spadeK]
+
 
 def getAmt(card):
     ''' Returns the amount the card is worth.
@@ -121,8 +122,30 @@ E.g. Ace is default 11. 10/Jack/Queen/King is 10.'''
     elif card in card10:
         return 10
     else:
-        print 'getAmt broke'
+        print('getAmt broke')
         exit()
+
+def simulatehit(ucards):
+    deck = copy.copy(cards)
+    results = []
+    for i in range(1000):
+        s = 0
+        aces = 0
+        ucards.append(random.choice(deck))
+        for card in ucards:
+            if getAmt(card) == 11:
+                aces+=1
+            s+= getAmt(card)
+        while s > 21 and aces > 0:
+            s -=10
+            aces-=1
+
+        if s > 21:
+            results.append(0)
+        else:
+            results.append(1)
+        ucards = ucards[:-1]
+    return sum(results)/1000 >= 0.9
 
 def genCard(cList, xList):
     '''Generates an card from cList, removes it from cList, and appends it to xList.
@@ -134,6 +157,7 @@ Returns if card is Ace and the card itself.'''
     if card in cardA:
         cA = 1
     return card, cA
+
 
 def initGame(cList, uList, dList):
     '''Generates two cards for dealer and user, one at a time for each.
@@ -150,16 +174,17 @@ Returns if card is Ace and the total amount of the cards per person.'''
     dealA += cA
     return getAmt(card1) + getAmt(card3), userA, getAmt(card2) + getAmt(card4), dealA
 
+
 def main():
-    #Local Variable
+    # Local Variable
     ccards = copy.copy(cards)
     stand = False
     userCard = []
     dealCard = []
     winNum = 0
     loseNum = 0
-   
-    #Initialize Game
+
+    # Initialize Game
     pygame.init()
     screen = pygame.display.set_mode((640, 480))
     pygame.display.set_caption('Blackjack')
@@ -170,7 +195,7 @@ def main():
     gameoverTxt = font.render('GAME OVER', 1, white)
     userSum, userA, dealSum, dealA = initGame(ccards, userCard, dealCard)
 
-    #Fill Background
+    # Fill Background
     background = pygame.Surface(screen.get_size())
     background = background.convert()
     background.fill((80, 150, 15))
@@ -178,45 +203,55 @@ def main():
     standB = pygame.draw.rect(background, gray, (95, 445, 75, 25))
     ratioB = pygame.draw.rect(background, gray, (555, 420, 75, 50))
 
-    #Event Loop
+    # Event Loop
+    counter = 0
+
     while True:
-        #checks if game is over
+        if counter == 50:
+            break
+        counter+=1
+
+        # checks if game is over
         gameover = True if (userSum >= 21 and userA == 0) or len(userCard) == 5 else False
         if len(userCard) == 2 and userSum == 21:
             gameover = True
         elif len(dealCard) == 2 and dealSum == 21:
             gameover = True
 
-        #background needs to be redisplayed because it gets updated
+        # background needs to be redisplayed because it gets updated
         winTxt = font.render('Wins: %i' % winNum, 1, black)
         loseTxt = font.render('Losses: %i' % loseNum, 1, black)
 
-        #checks for mouse clicks on buttons
+        # checks for mouse clicks on buttons
+        """
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
-            elif event.type == pygame.MOUSEBUTTONDOWN and not (gameover or stand) and hitB.collidepoint(pygame.mouse.get_pos()):
-                #gives player a card if they don't break blackjack rules
+            elif event.type == pygame.MOUSEBUTTONDOWN and not (gameover or stand) and hitB.collidepoint(
+                    pygame.mouse.get_pos()):
+                # gives player a card if they don't break blackjack rules
                 card, cA = genCard(ccards, userCard)
                 userA += cA
                 userSum += getAmt(card)
-                print 'User: %i' % userSum
+                print('User: %i' % userSum)
                 while userSum > 21 and userA > 0:
                     userA -= 1
                     userSum -= 10
             elif event.type == pygame.MOUSEBUTTONDOWN and not gameover and standB.collidepoint(pygame.mouse.get_pos()):
-                #when player stands, the dealer plays
+                # when player stands, the dealer plays
                 stand = True
                 while dealSum <= userSum and dealSum < 17:
                     card, cA = genCard(ccards, dealCard)
                     dealA += cA
                     dealSum += getAmt(card)
-                    print 'Dealer: %i' % dealSum
+                    print
+                    'Dealer: %i' % dealSum
                     while dealSum > 21 and dealA > 0:
                         dealA -= 1
                         dealSum -= 10
-            elif event.type == pygame.MOUSEBUTTONDOWN and (gameover or stand) and restartB.collidepoint(pygame.mouse.get_pos()):
-                #restarts the game, updating scores
+            elif event.type == pygame.MOUSEBUTTONDOWN and (gameover or stand) and restartB.collidepoint(
+                    pygame.mouse.get_pos()):
+                # restarts the game, updating scores
                 if userSum == dealSum:
                     pass
                 elif userSum <= 21 and len(userCard) == 5:
@@ -232,33 +267,67 @@ def main():
                 ccards = copy.copy(cards)
                 userSum, userA, dealSum, dealA = initGame(ccards, userCard, dealCard)
                 restartB = pygame.draw.rect(background, (80, 150, 15), (270, 225, 75, 25))
-
+        """
+        while simulatehit(userCard) or userSum < getAmt(dealCard[0]) + 10:
+            card, cA = genCard(ccards, userCard)
+            userA += cA
+            userSum += getAmt(card)
+            print('User: %i' % userSum)
+            while userSum > 21 and userA > 0:
+                userA -= 1
+                userSum -= 10
+        stand = True
+        while dealSum <= userSum and dealSum < 17:
+            card, cA = genCard(ccards, dealCard)
+            dealA += cA
+            dealSum += getAmt(card)
+            print
+            'Dealer: %i' % dealSum
+            while dealSum > 21 and dealA > 0:
+                dealA -= 1
+                dealSum -= 10
+        if userSum == dealSum:
+            pass
+        elif userSum <= 21 and len(userCard) == 5:
+            winNum += 1
+        elif userSum <= 21 and dealSum < userSum or dealSum > 21:
+            winNum += 1
+        else:
+            loseNum += 1
+        gameover = False
+        stand = False
+        userCard = []
+        dealCard = []
+        ccards = copy.copy(cards)
+        userSum, userA, dealSum, dealA = initGame(ccards, userCard, dealCard)
+        restartB = pygame.draw.rect(background, (80, 150, 15), (270, 225, 75, 25))
         screen.blit(background, (0, 0))
         screen.blit(hitTxt, (39, 448))
         screen.blit(standTxt, (116, 448))
         screen.blit(winTxt, (565, 423))
         screen.blit(loseTxt, (565, 448))
 
-        #displays dealer's cards
+        # displays dealer's cards
         for card in dealCard:
             x = 10 + dealCard.index(card) * 110
             screen.blit(card, (x, 10))
         screen.blit(cBack, (120, 10))
 
-        #displays player's cards
+        # displays player's cards
         for card in userCard:
             x = 10 + userCard.index(card) * 110
             screen.blit(card, (x, 295))
 
-        #when game is over, draws restart button and text, and shows the dealer's second card
+        # when game is over, draws restart button and text, and shows the dealer's second card
         if gameover or stand:
             screen.blit(gameoverTxt, (270, 200))
             restartB = pygame.draw.rect(background, gray, (270, 225, 75, 25))
             screen.blit(restartTxt, (287, 228))
             screen.blit(dealCard[1], (120, 10))
-            
+
         pygame.display.update()
-            
+    print(winNum)
+    print(loseNum)
 
 if __name__ == '__main__':
     main()
